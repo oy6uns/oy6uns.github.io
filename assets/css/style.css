@@ -401,9 +401,13 @@ section {
 /*--------------------------------------------------------------
 # About
 --------------------------------------------------------------*/
+.center{
+  text-align: center;
+}
+
 .img-fluid{
-  width: 606px;
-  height: 847px;
+  width: 270px;
+  height: 380px;
 }
 
 .about .content h3 {
