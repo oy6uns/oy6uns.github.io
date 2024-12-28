@@ -1,0 +1,23 @@
+# -- Site Configuration --
+# Refer to the theme docs for more details about each of these parameters.
+# https://jpanther.github.io/congo/docs/getting-started/
+
+baseURL = "https://oy6uns.github.io"
+languageCode = "en"
+title = "My Blog"
+theme = "congo"
+
+enableRobotsTXT = true
+summaryLength = 0
+
+[pagination]
+  pagerSize = 10
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[params]
+  mainSections = ["posts"]
+
+
+
