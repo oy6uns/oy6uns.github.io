@@ -2,10 +2,10 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on oy6uns</title>
-    <link>http://localhost:1313/categories/</link>
+    <link>https://oy6uns.github.io/categories/</link>
     <description>Recent content in Categories on oy6uns</description>
     <generator>Hugo</generator>
     <language>en</language>
-    <atom:link href="http://localhost:1313/categories/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://oy6uns.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
