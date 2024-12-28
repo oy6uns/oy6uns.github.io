@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://oy6uns.github.io/sitemap.xml
