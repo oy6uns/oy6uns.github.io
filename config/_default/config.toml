@@ -3,7 +3,7 @@
 # https://jpanther.github.io/congo/docs/getting-started/
 
 baseURL = "https://oy6uns.github.io/"
-relativeURLs = true
+relativeURLs = false
 canonifyURLs = true
 languageCode = "en"
 title = "My Blog"

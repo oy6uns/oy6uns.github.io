@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Hi there~! on oy6uns</title>
+    <link>https://oy6uns.github.io/</link>
+    <description>Recent content in Hi there~! on oy6uns</description>
+    <generator>Hugo</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 28 Dec 2024 17:07:00 +0900</lastBuildDate>
+    <atom:link href="https://oy6uns.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>My First Post</title>
+      <link>https://oy6uns.github.io/posts/my-first-post/</link>
+      <pubDate>Sat, 28 Dec 2024 17:07:00 +0900</pubDate>
+      <guid>https://oy6uns.github.io/posts/my-first-post/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title></title>
+      <link>https://oy6uns.github.io/about/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://oy6uns.github.io/about/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>
