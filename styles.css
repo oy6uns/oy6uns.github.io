@@ -435,7 +435,7 @@ button {
   border-radius: 5px;
   background: var(--tag-bg);
   color: var(--tag);
-  font-size: 10.5px;
+  font-size: inherit;
   font-weight: 750;
   letter-spacing: 0.045em;
   line-height: 1;
