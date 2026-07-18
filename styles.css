@@ -422,7 +422,7 @@ button {
 .publication-venue-main {
   display: inline-flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: baseline;
   gap: 7px;
 }
 
