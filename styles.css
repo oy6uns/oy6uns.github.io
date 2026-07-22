@@ -459,7 +459,6 @@ button {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 6px;
   margin-top: 6px;
   color: var(--faint);
   font-size: 11.5px;
@@ -468,10 +467,6 @@ button {
 
 .publication-links a {
   font-weight: 600;
-}
-
-.publication-links span {
-  color: var(--faint);
 }
 
 .publication-list strong {
