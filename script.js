@@ -17,7 +17,7 @@ function setTheme(theme) {
   if (currentLabel) currentLabel.textContent = theme;
   if (nextLabel) nextLabel.textContent = `→${next}`;
   if (toggle) toggle.setAttribute("aria-label", `Switch to ${next} theme`);
-  if (themeColor) themeColor.content = theme === "dark" ? "#000000" : "#fbfbfd";
+  if (themeColor) themeColor.content = theme === "dark" ? "#151512" : "#f7f4ec";
 }
 
 setTheme(getPreferredTheme());
