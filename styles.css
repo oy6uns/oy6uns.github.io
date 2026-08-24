@@ -451,25 +451,36 @@ button:focus-visible {
   align-items: start;
 }
 
+/* Figures are diagrams with wildly different aspect ratios, so the box takes
+   its height from the image rather than cropping to a fixed ratio. */
 .pub-thumb {
   display: block;
-  aspect-ratio: 16 / 10;
+  padding: 8px;
   border: 1px solid var(--hairline);
   border-radius: var(--radius);
   background: var(--bg-soft);
   overflow: hidden;
 }
 
+.pub-thumb:hover {
+  border-color: var(--accent-border);
+}
+
 .pub-thumb img {
   width: 100%;
-  height: 100%;
+  height: auto;
   display: block;
-  object-fit: cover;
+}
+
+:root[data-theme="dark"] .pub-thumb img {
+  /* The figures are drawn on white; soften them so they don't glare. */
+  filter: brightness(0.92) contrast(1.02);
 }
 
 .pub-thumb.is-empty {
   display: grid;
   place-items: center;
+  aspect-ratio: 16 / 10;
   color: var(--faint);
   font-family: var(--mono);
   font-size: 11px;

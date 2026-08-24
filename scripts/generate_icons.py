@@ -1,215 +1,143 @@
-"""Generate the site's terminal-inspired favicon set using only the standard library."""
+"""Generate the site's favicon / app-icon set: an "SB" monogram.
+
+Design
+------
+The mark echoes the site: a circle (like the avatar and the theme toggle) in the
+accent navy, with a tight "SB" monogram in Inter SemiBold. The dark-theme
+favicon inverts to a light-blue disc with near-black letters so it stays legible
+against a dark browser chrome. App icons (apple-touch / PWA) use a full-bleed
+rounded square instead, since the OS supplies its own mask.
+
+Requirements
+------------
+    pip install pillow fonttools brotli
+
+The Inter TTF is built on the fly from the `@fontsource/inter` npm package if it
+is not already present next to this script:
+
+    npm pack @fontsource/inter@5
+
+Then point --font at the extracted `inter-latin-600-normal.woff2`, or drop an
+`Inter-SemiBold.ttf` in this directory.
+
+Usage
+-----
+    python3 scripts/generate_icons.py [--font PATH]
+"""
 
 from __future__ import annotations
 
-import binascii
-import struct
-import zlib
+import argparse
 from pathlib import Path
 
+from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets"
-SUPERSAMPLE = 4
+HERE = Path(__file__).resolve().parent
 
-GLYPHS = {
-    "S": (
-        "11111",
-        "10000",
-        "10000",
-        "11111",
-        "00001",
-        "00001",
-        "11111",
-    ),
-    "B": (
-        "11110",
-        "10001",
-        "10001",
-        "11110",
-        "10001",
-        "10001",
-        "11110",
-    ),
-}
+SUPERSAMPLE = 8
+TRACKING = -0.03  # em, tightens the pair the way the site's headings are tracked
+
+NAVY = (47, 93, 138, 255)
+SKY = (134, 179, 220, 255)
+WHITE = (255, 255, 255, 255)
+INK = (22, 24, 28, 255)
 
 PALETTES = {
-    "light": {
-        "background": (247, 244, 236, 255),
-        "border": (210, 204, 192, 255),
-        "s": (190, 91, 69, 255),
-        "b": (48, 49, 47, 255),
-    },
-    "dark": {
-        "background": (21, 21, 18, 255),
-        "border": (68, 66, 58, 255),
-        "s": (223, 146, 126, 255),
-        "b": (243, 239, 229, 255),
-    },
+    # name:      (disc colour, letter colour, shape)
+    "light": (NAVY, WHITE, "circle"),
+    "dark": (SKY, INK, "circle"),
+    "app": (NAVY, WHITE, "squircle"),
 }
 
-
-def inside_rounded_rect(x: int, y: int, size: int, inset: int, radius: int) -> bool:
-    left = inset
-    top = inset
-    right = size - inset - 1
-    bottom = size - inset - 1
-    if not (left <= x <= right and top <= y <= bottom):
-        return False
-
-    inner_left = left + radius
-    inner_right = right - radius
-    inner_top = top + radius
-    inner_bottom = bottom - radius
-    if inner_left <= x <= inner_right or inner_top <= y <= inner_bottom:
-        return True
-
-    cx = inner_left if x < inner_left else inner_right
-    cy = inner_top if y < inner_top else inner_bottom
-    return (x - cx) ** 2 + (y - cy) ** 2 <= radius**2
+OUTPUTS = (
+    ("favicon.png", 64, "light"),
+    ("favicon-light.png", 64, "light"),
+    ("favicon-dark.png", 64, "dark"),
+    ("favicon-32x32.png", 32, "light"),
+    ("favicon-16x16.png", 16, "light"),
+    ("apple-touch-icon.png", 180, "app"),
+    ("icon-192.png", 192, "app"),
+    ("icon-512.png", 512, "app"),
+)
 
 
-def fill_rounded_rect(
-    pixels: bytearray,
-    size: int,
-    inset: int,
-    radius: int,
-    color: tuple[int, int, int, int],
-) -> None:
-    for y in range(size):
-        for x in range(size):
-            if inside_rounded_rect(x, y, size, inset, radius):
-                offset = (y * size + x) * 4
-                pixels[offset : offset + 4] = bytes(color)
+def find_font(explicit: str | None) -> Path:
+    candidates = []
+    if explicit:
+        candidates.append(Path(explicit))
+    candidates += [
+        HERE / "Inter-SemiBold.ttf",
+        ROOT / "Inter-SemiBold.ttf",
+        Path("/tmp/Inter-SemiBold.ttf"),
+    ]
+    for candidate in candidates:
+        if candidate.suffix in {".woff", ".woff2"} and candidate.exists():
+            from fontTools.ttLib import TTFont
 
-
-def fill_rect(
-    pixels: bytearray,
-    size: int,
-    x: int,
-    y: int,
-    width: int,
-    height: int,
-    color: tuple[int, int, int, int],
-) -> None:
-    row = bytes(color) * width
-    for py in range(y, y + height):
-        start = (py * size + x) * 4
-        pixels[start : start + len(row)] = row
-
-
-def draw_glyph(
-    pixels: bytearray,
-    size: int,
-    glyph: tuple[str, ...],
-    x: int,
-    y: int,
-    scale: int,
-    color: tuple[int, int, int, int],
-) -> None:
-    for row_index, row in enumerate(glyph):
-        for column_index, cell in enumerate(row):
-            if cell == "1":
-                fill_rect(
-                    pixels,
-                    size,
-                    x + column_index * scale,
-                    y + row_index * scale,
-                    scale,
-                    scale,
-                    color,
-                )
-
-
-def downsample(pixels: bytearray, source_size: int, target_size: int) -> bytearray:
-    factor = source_size // target_size
-    result = bytearray(target_size * target_size * 4)
-    area = factor * factor
-    for y in range(target_size):
-        for x in range(target_size):
-            totals = [0, 0, 0, 0]
-            for sy in range(y * factor, (y + 1) * factor):
-                for sx in range(x * factor, (x + 1) * factor):
-                    offset = (sy * source_size + sx) * 4
-                    for channel in range(4):
-                        totals[channel] += pixels[offset + channel]
-            target = (y * target_size + x) * 4
-            result[target : target + 4] = bytes(value // area for value in totals)
-    return result
-
-
-def png_chunk(kind: bytes, data: bytes) -> bytes:
-    return (
-        struct.pack(">I", len(data))
-        + kind
-        + data
-        + struct.pack(">I", binascii.crc32(kind + data) & 0xFFFFFFFF)
+            out = HERE / "Inter-SemiBold.ttf"
+            font = TTFont(str(candidate))
+            font.flavor = None
+            font.save(str(out))
+            return out
+        if candidate.exists():
+            return candidate
+    raise SystemExit(
+        "Inter SemiBold not found. See the module docstring for how to fetch it, "
+        "then pass --font."
     )
 
 
-def write_png(path: Path, size: int, pixels: bytearray) -> None:
-    rows = b"".join(
-        b"\x00" + bytes(pixels[y * size * 4 : (y + 1) * size * 4])
-        for y in range(size)
-    )
-    payload = b"\x89PNG\r\n\x1a\n"
-    payload += png_chunk(b"IHDR", struct.pack(">IIBBBBB", size, size, 8, 6, 0, 0, 0))
-    payload += png_chunk(b"IDAT", zlib.compress(rows, level=9))
-    payload += png_chunk(b"IEND", b"")
-    path.write_bytes(payload)
+def draw_mark(size: int, palette_name: str, font_path: Path) -> Image.Image:
+    disc, letters, shape = PALETTES[palette_name]
+    canvas = size * SUPERSAMPLE
+    image = Image.new("RGBA", (canvas, canvas), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
 
+    if shape == "circle":
+        # A hair of inset keeps the antialiased edge off the very last pixel.
+        inset = max(1, canvas // 64)
+        draw.ellipse((inset, inset, canvas - inset - 1, canvas - inset - 1), fill=disc)
+        cap_fraction = 0.42
+    else:
+        radius = round(canvas * 0.22)
+        draw.rounded_rectangle((0, 0, canvas - 1, canvas - 1), radius=radius, fill=disc)
+        cap_fraction = 0.40
 
-def generate_icon(path: Path, target_size: int, palette_name: str) -> None:
-    size = target_size * SUPERSAMPLE
-    palette = PALETTES[palette_name]
-    pixels = bytearray(size * size * 4)
+    # Size the type by cap height so every icon reads identically.
+    probe = ImageFont.truetype(str(font_path), 100)
+    cap_at_100 = probe.getbbox("H")[3] - probe.getbbox("H")[1]
+    px = round(100 * canvas * cap_fraction / cap_at_100)
+    font = ImageFont.truetype(str(font_path), px)
 
-    border = max(SUPERSAMPLE, target_size // 32 * SUPERSAMPLE)
-    radius = round(target_size * 0.22) * SUPERSAMPLE
-    fill_rounded_rect(pixels, size, 0, radius, palette["border"])
-    fill_rounded_rect(
-        pixels,
-        size,
-        border,
-        max(SUPERSAMPLE, radius - border),
-        palette["background"],
-    )
+    tracking = round(px * TRACKING)
+    glyphs = "SB"
+    widths = [draw.textlength(ch, font=font) for ch in glyphs]
+    total = sum(widths) + tracking * (len(glyphs) - 1)
 
-    glyph_scale = max(1, target_size // 14) * SUPERSAMPLE
-    gap = glyph_scale
-    glyph_width = 5 * glyph_scale
-    total_width = glyph_width * 2 + gap
-    glyph_height = 7 * glyph_scale
-    start_x = (size - total_width) // 2
-    start_y = (size - glyph_height) // 2
-    draw_glyph(pixels, size, GLYPHS["S"], start_x, start_y, glyph_scale, palette["s"])
-    draw_glyph(
-        pixels,
-        size,
-        GLYPHS["B"],
-        start_x + glyph_width + gap,
-        start_y,
-        glyph_scale,
-        palette["b"],
-    )
+    # Centre on the cap-height box, not on the font's line box.
+    box = font.getbbox(glyphs)
+    x = (canvas - total) / 2
+    y = (canvas - (box[3] - box[1])) / 2 - box[1]
 
-    write_png(path, target_size, downsample(pixels, size, target_size))
+    for ch, advance in zip(glyphs, widths):
+        draw.text((x, y), ch, font=font, fill=letters)
+        x += advance + tracking
+
+    return image.resize((size, size), Image.LANCZOS)
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--font", help="Path to Inter SemiBold (.ttf/.woff2)")
+    args = parser.parse_args()
+
+    font_path = find_font(args.font)
     ASSETS.mkdir(exist_ok=True)
-    outputs = (
-        ("favicon.png", 64, "light"),
-        ("favicon-light.png", 64, "light"),
-        ("favicon-dark.png", 64, "dark"),
-        ("favicon-32x32.png", 32, "light"),
-        ("favicon-16x16.png", 16, "light"),
-        ("apple-touch-icon.png", 180, "dark"),
-        ("icon-192.png", 192, "dark"),
-        ("icon-512.png", 512, "dark"),
-    )
-    for filename, size, palette in outputs:
-        generate_icon(ASSETS / filename, size, palette)
+    for filename, size, palette in OUTPUTS:
+        draw_mark(size, palette, font_path).save(ASSETS / filename)
+        print(f"wrote assets/{filename} ({size}px, {palette})")
 
 
 if __name__ == "__main__":
