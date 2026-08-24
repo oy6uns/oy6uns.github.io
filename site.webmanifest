@@ -3,8 +3,8 @@
   "short_name": "Sungho Bae",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f7f4ec",
-  "theme_color": "#151512",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "assets/icon-192.png",
