@@ -806,3 +806,25 @@ button:focus-visible {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+
+/* Submission status under a venue line (e.g. an extended version under review) */
+.pub-status {
+  margin: 3px 0 0;
+  color: var(--faint);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.pub-status::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin: 0 7px 3px 0;
+  border-radius: 50%;
+  background: var(--tag);
+}
+
+.pub-status em {
+  font-style: italic;
+}
