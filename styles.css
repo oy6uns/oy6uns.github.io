@@ -571,6 +571,74 @@ button:focus-visible {
   color: var(--accent-hover);
 }
 
+/* --------------------------------------------- under review & preprints -- */
+
+.preprint-list {
+  display: grid;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.preprint-entry {
+  padding-left: 16px;
+  border-left: 2px solid var(--hairline);
+}
+
+.preprint-entry h3 {
+  margin: 5px 0;
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 680;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+.preprint-entry h3 a {
+  color: inherit;
+}
+
+.preprint-entry h3 a:hover {
+  color: var(--accent);
+}
+
+.preprint-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+
+.preprint-meta time {
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.preprint-status {
+  display: inline-block;
+  padding: 1px 7px;
+  border: 1px solid var(--hairline-strong);
+  border-radius: 4px;
+  color: var(--faint);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.preprint-status.is-preprint {
+  border-color: var(--accent-border);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.preprint-entry .pub-links {
+  margin-top: 8px;
+}
+
 /* full publications page */
 .year-group + .year-group {
   margin-top: 36px;
