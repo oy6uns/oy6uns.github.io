@@ -39,7 +39,7 @@
   --thumb-shadow-hover: 0 2px 4px rgba(16, 24, 40, 0.09), 0 10px 22px rgba(16, 24, 40, 0.11);
 
   /* metrics */
-  --width: min(760px, calc(100% - 40px));
+  --width: min(920px, calc(100% - 48px));
   --radius: 8px;
 
   --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -452,17 +452,20 @@ button:focus-visible {
 
 .pub {
   display: grid;
-  grid-template-columns: 190px 1fr;
-  gap: 22px;
+  grid-template-columns: 236px 1fr;
+  gap: 26px;
   align-items: start;
 }
 
-/* Figures are diagrams with wildly different aspect ratios, so the box takes
-   its height from the image rather than cropping to a fixed ratio. The card is
-   white in both themes because the figures themselves are drawn on white. */
+/* Every thumbnail is the same fixed box so the list reads as an even column.
+   Figures vary wildly in aspect ratio, so they are contained inside the box
+   rather than cropped; the card is white in both themes because the figures
+   themselves are drawn on white. */
 .pub-thumb {
-  display: block;
-  padding: 8px;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  padding: 10px;
   border: 1px solid var(--thumb-border);
   border-radius: var(--radius);
   background: #ffffff;
@@ -479,8 +482,13 @@ button:focus-visible {
 
 .pub-thumb img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  /* Grid items default to min-height:auto, which would let a tall figure push
+     the card past its aspect ratio; zeroing it lets object-fit do its job. */
+  min-width: 0;
+  min-height: 0;
   display: block;
+  object-fit: contain;
 }
 
 /* Let the whole card recede in dark mode, so the padding and the figure dim
@@ -560,30 +568,60 @@ button:focus-visible {
 .pub-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 7px;
-  margin: 11px 0 0;
+  gap: 8px;
+  margin: 12px 0 0;
   padding: 0;
   list-style: none;
 }
 
+/* Each chip carries its own ink and tint, set by the modifier classes below. */
 .pub-links a {
+  --chip-ink: var(--accent);
+  --chip-tint: var(--accent-soft);
   display: inline-flex;
   align-items: center;
-  padding: 2px 10px;
-  border: 1px solid var(--accent-border);
+  gap: 6px;
+  padding: 3px 11px;
+  border: 1px solid transparent;
   border-radius: 999px;
-  color: var(--accent);
+  background: var(--chip-tint);
+  color: var(--chip-ink);
   font-size: 12.5px;
-  font-weight: 600;
-  line-height: 1.8;
+  font-weight: 650;
+  line-height: 1.75;
+  transition: filter 140ms ease, border-color 140ms ease;
 }
 
 .pub-links a:hover {
-  background: var(--accent-soft);
-  color: var(--accent-hover);
+  border-color: var(--chip-ink);
+  color: var(--chip-ink);
+  filter: saturate(1.15);
 }
 
-/* --------------------------------------------- under review & preprints -- */
+.pub-links svg {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pub-links .is-site  { --chip-ink: #2563eb; --chip-tint: rgba(37, 99, 235, 0.10); }
+.pub-links .is-pdf   { --chip-ink: #d1443b; --chip-tint: rgba(209, 68, 59, 0.10); }
+.pub-links .is-arxiv { --chip-ink: #b4321f; --chip-tint: rgba(180, 50, 31, 0.10); }
+.pub-links .is-code  { --chip-ink: #3f4752; --chip-tint: rgba(63, 71, 82, 0.10); }
+.pub-links .is-bib   { --chip-ink: #0d8c80; --chip-tint: rgba(13, 140, 128, 0.11); }
+
+:root[data-theme="dark"] .pub-links .is-site  { --chip-ink: #7fa9f5; --chip-tint: rgba(127, 169, 245, 0.14); }
+:root[data-theme="dark"] .pub-links .is-pdf   { --chip-ink: #f08e85; --chip-tint: rgba(240, 142, 133, 0.14); }
+:root[data-theme="dark"] .pub-links .is-arxiv { --chip-ink: #ec8a76; --chip-tint: rgba(236, 138, 118, 0.14); }
+:root[data-theme="dark"] .pub-links .is-code  { --chip-ink: #b4bdc8; --chip-tint: rgba(180, 189, 200, 0.13); }
+:root[data-theme="dark"] .pub-links .is-bib   { --chip-ink: #5fc9bd; --chip-tint: rgba(95, 201, 189, 0.14); }
+
+/* ----------------------------------------------------------- preprints -- */
 
 .preprint-list {
   display: grid;
@@ -796,7 +834,7 @@ button:focus-visible {
 
 @media (max-width: 720px) {
   :root {
-    --width: min(100% - 32px, 760px);
+    --width: min(100% - 32px, 920px);
   }
 
   body {
