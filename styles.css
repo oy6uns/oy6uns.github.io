@@ -29,6 +29,7 @@
   /* semantic */
   --name: #1f2328;
   --author: #5c6470;
+  --highlight: #a4262c;
   --tag: #8a5a2b;
   --tag-bg: rgba(138, 90, 43, 0.09);
   --tag-border: rgba(138, 90, 43, 0.3);
@@ -69,6 +70,7 @@
 
   --name: #f2f4f6;
   --author: #a5adb8;
+  --highlight: #ef8f93;
   --tag: #d7a877;
   --tag-bg: rgba(215, 168, 119, 0.13);
   --tag-border: rgba(215, 168, 119, 0.34);
@@ -548,6 +550,13 @@ button:focus-visible {
   font-weight: 550;
 }
 
+.pub-highlight {
+  margin-left: 3px;
+  color: var(--highlight);
+  font-weight: 700;
+  font-style: normal;
+}
+
 .pub-tag {
   display: inline-block;
   margin-left: 8px;
@@ -568,8 +577,8 @@ button:focus-visible {
 .pub-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin: 12px 0 0;
+  gap: 6px;
+  margin: 10px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -580,15 +589,15 @@ button:focus-visible {
   --chip-tint: var(--accent-soft);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 11px;
+  gap: 5px;
+  padding: 2.5px 9px;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--chip-tint);
   color: var(--chip-ink);
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 650;
-  line-height: 1.75;
+  line-height: 1.5;
   transition: filter 140ms ease, border-color 140ms ease;
 }
 
@@ -600,13 +609,32 @@ button:focus-visible {
 
 .pub-links svg {
   flex: 0 0 auto;
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+/* Brand marks carry their own geometry and colour, so they opt out of the
+   stroke defaults above. */
+.pub-links svg.ico-fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+.pub-links svg.ico-arxiv {
+  stroke-width: 3.2;
+}
+
+.pub-links svg.ico-arxiv .x-red {
+  stroke: #b31b1b;
+}
+
+.pub-links svg.ico-arxiv .x-grey {
+  stroke: #bdb9b4;
 }
 
 .pub-links .is-site  { --chip-ink: #2563eb; --chip-tint: rgba(37, 99, 235, 0.10); }
@@ -939,9 +967,11 @@ button:focus-visible {
 }
 
 .pub-tag.is-muted {
+  padding: 1px 6px;
   border-color: var(--hairline-strong);
   background: transparent;
   color: var(--faint);
   margin-left: 0;
+  font-size: 9.5px;
   font-weight: 650;
 }
