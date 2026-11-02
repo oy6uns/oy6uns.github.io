@@ -34,6 +34,9 @@
   --tag-border: rgba(138, 90, 43, 0.3);
 
   --avatar-bg: #f0f1f3;
+  --thumb-border: #e3e6ea;
+  --thumb-shadow: 0 1px 2px rgba(16, 24, 40, 0.07), 0 4px 12px rgba(16, 24, 40, 0.07);
+  --thumb-shadow-hover: 0 2px 4px rgba(16, 24, 40, 0.09), 0 10px 22px rgba(16, 24, 40, 0.11);
 
   /* metrics */
   --width: min(760px, calc(100% - 40px));
@@ -71,6 +74,9 @@
   --tag-border: rgba(215, 168, 119, 0.34);
 
   --avatar-bg: #22262c;
+  --thumb-border: rgba(255, 255, 255, 0.14);
+  --thumb-shadow: 0 1px 2px rgba(0, 0, 0, 0.45), 0 6px 18px rgba(0, 0, 0, 0.4);
+  --thumb-shadow-hover: 0 2px 5px rgba(0, 0, 0, 0.5), 0 12px 28px rgba(0, 0, 0, 0.48);
 }
 
 /* --------------------------------------------------------------- reset -- */
@@ -452,18 +458,23 @@ button:focus-visible {
 }
 
 /* Figures are diagrams with wildly different aspect ratios, so the box takes
-   its height from the image rather than cropping to a fixed ratio. */
+   its height from the image rather than cropping to a fixed ratio. The card is
+   white in both themes because the figures themselves are drawn on white. */
 .pub-thumb {
   display: block;
   padding: 8px;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--thumb-border);
   border-radius: var(--radius);
-  background: var(--bg-soft);
+  background: #ffffff;
+  box-shadow: var(--thumb-shadow);
   overflow: hidden;
+  transition: box-shadow 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
 .pub-thumb:hover {
   border-color: var(--accent-border);
+  box-shadow: var(--thumb-shadow-hover);
+  transform: translateY(-1px);
 }
 
 .pub-thumb img {
@@ -472,9 +483,10 @@ button:focus-visible {
   display: block;
 }
 
-:root[data-theme="dark"] .pub-thumb img {
-  /* The figures are drawn on white; soften them so they don't glare. */
-  filter: brightness(0.92) contrast(1.02);
+/* Let the whole card recede in dark mode, so the padding and the figure dim
+   together instead of the white frame glaring around a dimmed image. */
+:root[data-theme="dark"] .pub-thumb {
+  filter: brightness(0.9) contrast(1.02);
 }
 
 .pub-thumb.is-empty {
@@ -875,24 +887,23 @@ button:focus-visible {
   stroke-linejoin: round;
 }
 
-/* Submission status under a venue line (e.g. an extended version under review) */
+/* Submission status under a venue line (e.g. an extended version under review).
+   The tag is neutral so it reads as a status, not as an honour like "Oral". */
 .pub-status {
-  margin: 3px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin: 7px 0 0;
   color: var(--faint);
-  font-size: 13.5px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
-.pub-status::before {
-  content: "";
-  display: inline-block;
-  width: 4px;
-  height: 4px;
-  margin: 0 7px 3px 0;
-  border-radius: 50%;
-  background: var(--tag);
-}
-
-.pub-status em {
-  font-style: italic;
+.pub-tag.is-muted {
+  border-color: var(--hairline-strong);
+  background: transparent;
+  color: var(--faint);
+  margin-left: 0;
+  font-weight: 650;
 }

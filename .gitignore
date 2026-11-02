@@ -1,0 +1,5 @@
+# macOS
+.DS_Store
+
+# Local scratch: drafts and generated documents that are not part of the site
+Claude outputs/
